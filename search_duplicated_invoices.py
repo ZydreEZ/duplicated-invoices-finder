@@ -1,9 +1,9 @@
 
 # 2. find duplicated invoices
-# make file with matched amount and referenece and file with matched amount and document date. (suspected duplicate)
+
 
 def create_invoices_pairs(posted_invoices_list):
-    duplicate_invoices_list = [] # create empty list
+    duplicate_invoices_list = [] 
 
     # 2.1 search invoices with same amount
 
@@ -25,7 +25,7 @@ def find_matching_invoices(
     for invoices_pair in duplicate_list:
         if posted_invoices_list[invoices_pair[0]][column_name] == \
         posted_invoices_list[invoices_pair[1]][column_name]:
-            matched_pair.append(invoices_pair) # add invoices which are with same values in column.
+            matched_pair.append(invoices_pair) 
     return matched_pair
 
 
@@ -34,12 +34,28 @@ def find_duplicated_invoices(same_amount_date, same_amount_reference):
     invoices_index = 0
     while invoices_index < len(same_amount_reference):
         if same_amount_reference[invoices_index] in same_amount_date:
-            temp_pair_value = same_amount_reference.pop(invoices_index) #return value and remove it from same amount and reference list. 
+            temp_pair_value = same_amount_reference.pop(invoices_index)
             duplicated_pairs.append(temp_pair_value)
             same_amount_date.remove(temp_pair_value)
         else: 
             invoices_index += 1
     return duplicated_pairs, same_amount_date, same_amount_reference
+
+
+def eliminate_same_inv(matched_invoices):
+    for key, value in matched_invoices.items():
+        temp = []
+        for pair in value:
+            if not temp:
+                temp.append(set(pair))
+                continue
+            new_ele = set(temp[-1]).intersection(set(pair))
+            if len(new_ele) > 0:
+                temp[-1] |= set(pair)
+            else:
+                temp.append(pair)
+        matched_invoices[key] = temp
+    return matched_invoices
 
 
 def execute(posted_invoices_list):
@@ -50,7 +66,6 @@ def execute(posted_invoices_list):
         matched_amounts,
         'document date' 
     )
-
     matched_invoices['amounts_references_matched_'] = find_matching_invoices(
         posted_invoices_list,
         matched_amounts,
@@ -64,4 +79,5 @@ def execute(posted_invoices_list):
         matched_invoices['amounts_dates_matched_'],
         matched_invoices['amounts_references_matched_']
     )
+    matched_invoices = eliminate_same_inv(matched_invoices)
     return matched_invoices
