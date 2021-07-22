@@ -1,25 +1,21 @@
-
-
 def create_invoices_pairs(all_invoices):
-    duplicate_invoices = [] 
+    duplicate_invoices = []
 
     for i in range(len(all_invoices) - 1):
         for j in range(i + 1, len(all_invoices)):
-            if all_invoices[i]['gross amount'] == all_invoices[j]['gross amount']:
+            if all_invoices[i]["gross amount"] == all_invoices[j]["gross amount"]:
                 duplicate_invoices.append([i, j])
     return duplicate_invoices
 
 
-def find_matching_invoices(
-    all_invoices,
-    same_amount_invoices,
-    column_name
-):
+def find_matching_invoices(all_invoices, same_amount_invoices, column_name):
     matched_pair = []
     for invoices_pair in same_amount_invoices:
-        if all_invoices[invoices_pair[0]][column_name] == \
-        all_invoices[invoices_pair[1]][column_name]:
-            matched_pair.append(invoices_pair) 
+        if (
+            all_invoices[invoices_pair[0]][column_name]
+            == all_invoices[invoices_pair[1]][column_name]
+        ):
+            matched_pair.append(invoices_pair)
     return matched_pair
 
 
@@ -31,7 +27,7 @@ def find_duplicated_invoices(same_amount_date, same_amount_reference):
             temp_pair = same_amount_reference.pop(i)
             duplicated_pairs.append(temp_pair)
             same_amount_date.remove(temp_pair)
-        else: 
+        else:
             i += 1
     return duplicated_pairs, same_amount_date, same_amount_reference
 
@@ -55,23 +51,19 @@ def eliminate_repeated_invoices(matched_invoices):
 def execute(all_invoices):
     matched_invoices = {}
     matched_amounts = create_invoices_pairs(all_invoices)
-    matched_invoices['amounts_dates_matched_'] = find_matching_invoices(
-        all_invoices,
-        matched_amounts,
-        'document date' 
+    matched_invoices["amounts_dates_matched_"] = find_matching_invoices(
+        all_invoices, matched_amounts, "document date"
     )
-    matched_invoices['amounts_references_matched_'] = find_matching_invoices(
-        all_invoices,
-        matched_amounts,
-        'reference' 
+    matched_invoices["amounts_references_matched_"] = find_matching_invoices(
+        all_invoices, matched_amounts, "reference"
     )
     (
-        matched_invoices['duplicates_'],
-        matched_invoices['amounts_dates_matched_'],
-        matched_invoices['amounts_references_matched_']
+        matched_invoices["duplicates_"],
+        matched_invoices["amounts_dates_matched_"],
+        matched_invoices["amounts_references_matched_"],
     ) = find_duplicated_invoices(
-        matched_invoices['amounts_dates_matched_'],
-        matched_invoices['amounts_references_matched_']
+        matched_invoices["amounts_dates_matched_"],
+        matched_invoices["amounts_references_matched_"],
     )
     matched_invoices = eliminate_repeated_invoices(matched_invoices)
     return matched_invoices
